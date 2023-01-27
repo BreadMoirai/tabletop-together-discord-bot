@@ -1,10 +1,8 @@
 package com.github.breadmoirai.discordtabletop
 
-import com.github.breadmoirai.discordtabletop.api.core.connect4.ConnectFour
-import com.github.breadmoirai.discordtabletop.api.discord.InteractionManager
-import com.github.breadmoirai.discordtabletop.api.discord.InteractionManagerImpl
-import com.github.breadmoirai.discordtabletop.api.jda.requireOption
-import com.github.breadmoirai.discordtabletop.api.logging.logger
+import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.OneNightWerewolf
+import com.github.breadmoirai.discordtabletop.jda.requireOption
+import com.github.breadmoirai.discordtabletop.logging.logger
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import dev.minn.jda.ktx.events.onCommand
@@ -15,7 +13,6 @@ import dev.minn.jda.ktx.interactions.commands.slash
 import dev.minn.jda.ktx.interactions.commands.updateCommands
 import dev.minn.jda.ktx.jdabuilder.light
 import net.dv8tion.jda.api.JDA
-import net.dv8tion.jda.api.entities.emoji.CustomEmoji
 import net.dv8tion.jda.api.requests.GatewayIntent
 import org.koin.core.context.startKoin
 import org.koin.core.qualifier.named
@@ -38,20 +35,32 @@ fun main() {
 
     val botNew = config.getBoolean("bot.new")
     logger.info("config['bot.new'] = $botNew")
-    if (botNew) {
-        jda.updateCommands {
-            slash("play", "Play a game") {
-                restrict(guild = true)
-                option<String>("game", "What game to play", true) {
-                    choice(ConnectFour.name, ConnectFour.id)
-                }
+    val mainGuild = jda.getGuildById(1032201616272666694) ?: error("Bot must be in main guild to function")
+    mainGuild.updateCommands {
+        slash("play", "Play a game") {
+            restrict(guild = true)
+            option<String>("game", "What game to play", true) {
+//                    choice(ConnectFour.name, ConnectFour.id)
+                choice(OneNightWerewolf.name, OneNightWerewolf.id)
             }
-        }.queue()
+        }
     }
+//    if (botNew) {
+//        jda.updateCommands {
+//            slash("play", "Play a game") {
+//                restrict(guild = true)
+//                option<String>("game", "What game to play", true) {
+////                    choice(ConnectFour.name, ConnectFour.id)
+//                    choice(OneNightWerewolf.name, OneNightWerewolf.id)
+//                }
+//            }
+//        }.queue()
+//    }
     val discord = module {
         single { jda }
-        single<InteractionManager> { InteractionManagerImpl(jda) }
-        single<CustomEmoji>(named("blank"), true) { jda.getGuildById(1032201616272666694)!!.retrieveEmojiById(1061180216652873758).complete()!! }
+        single(named("main")) {
+            jda.getGuildById(1032201616272666694) ?: error("Bot must be in main guild to function")
+        }
     }
     startKoin {
         modules(discord)
@@ -61,8 +70,11 @@ fun main() {
         val game = event.requireOption("game").asString
         logger.info("\\play game=$game")
         when (game) {
-            ConnectFour.id -> {
-                ConnectFour.createLobby(event)
+//            ConnectFour.id -> {
+//                ConnectFour.openLobby(event)
+//            }
+            OneNightWerewolf.id -> {
+                OneNightWerewolf.openLobby(event)
             }
         }
     }

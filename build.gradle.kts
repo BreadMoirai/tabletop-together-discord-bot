@@ -38,8 +38,11 @@ dependencies {
     // https://github.com/InsertKoinIO/koin
     implementation("io.insert-koin:koin-core:3.3.2")
 
+    // https://arrow-kt.io/docs/core/#Gradle-kotlin
+    implementation("io.arrow-kt:arrow-core:1.1.2")
+
     testImplementation(kotlin("test"))
-    testImplementation("org.junit.jupiter:junit-jupiter:5.9.0")
+    testImplementation("org.junit.jupiter:junit-jupiter:5.9.2")
 }
 
 tasks.test {
