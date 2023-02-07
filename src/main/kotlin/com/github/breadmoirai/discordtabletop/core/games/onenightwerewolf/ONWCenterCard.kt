@@ -3,12 +3,12 @@ package com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.roles.OneNightWerewolfRole
 import net.dv8tion.jda.api.interactions.components.selections.SelectOption
 
-class CenterCard(
+class ONWCenterCard(
     number: Int,
-    session: OneNightWerewolfSession,
+    session: ONWSession,
     role: OneNightWerewolfRole,
-    team: OneNightWerewolfTeam
-) : OneNightWerewolfPlayer(
+    team: ONWTeam
+) : ONWPlayer(
     number * -1L,
     session.channel.idLong,
     session.channel.guild.idLong,

@@ -4,8 +4,8 @@ import arrow.core.getOrElse
 import com.github.breadmoirai.discordtabletop.core.InteractableSession.Companion.randomId
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.NightAction
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.NoAction
-import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.OneNightWerewolfPlayer
-import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.OneNightWerewolfSession
+import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.ONWPlayer
+import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.ONWSession
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.PeekAction
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.roles.OneNightWerewolfRole
 import com.github.breadmoirai.discordtabletop.discord.emoji
@@ -27,8 +27,8 @@ class Seer : OneNightWerewolfRole() {
     }
 
     override suspend fun wakeUp(
-        session: OneNightWerewolfSession,
-        player: OneNightWerewolfPlayer,
+        session: ONWSession,
+        player: ONWPlayer,
         timeout: Duration
     ): List<NightAction> {
         val viewOnePlayerId = randomId("view-one")

@@ -4,8 +4,8 @@ import arrow.core.getOrElse
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.CopyRoleAction
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.NightAction
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.NoAction
-import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.OneNightWerewolfPlayer
-import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.OneNightWerewolfSession
+import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.ONWPlayer
+import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.ONWSession
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.roles.OneNightWerewolfRole
 import dev.minn.jda.ktx.messages.MessageEdit
 import kotlin.reflect.full.createInstance
@@ -16,12 +16,12 @@ class Doppleganger : OneNightWerewolfRole() {
     lateinit var copiedRole: OneNightWerewolfRole
     override val isWerewolf: Boolean
         get() {
-            return copiedRole is Werewolf
+            return copiedRole.isWerewolf
         }
 
     override suspend fun wakeUp(
-        session: OneNightWerewolfSession,
-        player: OneNightWerewolfPlayer,
+        session: ONWSession,
+        player: ONWPlayer,
         timeout: Duration
     ): List<NightAction> {
         if (this::copiedRole.isInitialized) {

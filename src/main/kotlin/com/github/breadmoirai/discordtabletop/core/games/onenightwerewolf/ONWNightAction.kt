@@ -10,30 +10,31 @@ sealed class NightAction {
     abstract val log: String
     abstract val text: String
 
-    open suspend fun textFor(player: OneNightWerewolfPlayer): String {
+    open suspend fun textFor(player: ONWPlayer): String {
         return text
     }
 }
 
-class NoAction(val player: OneNightWerewolfPlayer) : NightAction() {
+class NoAction(val player: ONWPlayer) : NightAction() {
     override val log: String =
-        runBlocking { "${player.displayNameAndStartingCard(true)} woke up and failed to do anything" }
+        runBlocking { "${player.displayNameAndCards(true)} woke up and failed to do anything" }
     override val text: String = runBlocking { "You woke up and failed to do anything" }
 }
 
-class StartAction(val player: OneNightWerewolfPlayer) : NightAction() {
-    override val log: String = runBlocking { "${player.displayName()} is a ${player.startingRole.displayRole(true)}" }
+class StartAction(val player: ONWPlayer) : NightAction() {
+    override val log: String =
+        runBlocking { "${player.displayName()} started as a ${player.startingRole.displayRole(true)}" }
     override val text: String = runBlocking { "You are a ${player.startingRole.displayRole(false)}" }
 }
 
 class CopyRoleAction(
-    val source: OneNightWerewolfPlayer,
-    val target: OneNightWerewolfPlayer
+    val source: ONWPlayer,
+    val target: ONWPlayer
 ) : NightAction() {
     override val log: String =
         runBlocking {
-            "${source.displayNameAndStartingCard(true)} " +
-                    "copied ${target.displayNameAndCard(true)}'s card: " +
+            "${source.displayNameAndCards(true)} " +
+                    "copied ${target.displayNameAndCards(true)}'s card: " +
                     target.currentRole.displayRole(true)
         }
     override val text: String =
@@ -51,17 +52,17 @@ class CopyRoleAction(
     }
 }
 
-class MutualLookAction(val participants: List<OneNightWerewolfPlayer>) : NightAction() {
+class MutualLookAction(val participants: List<ONWPlayer>) : NightAction() {
     override val log: String = runBlocking {
-        if (participants.size == 1) "${participants.first().displayName()} looked at no one"
-        else "${participants.oxfordAnd { it.displayName() }} looked at each other"
+        if (participants.size == 1) "${participants.first().displayNameAndCards(true)} looked at no one"
+        else "${participants.oxfordAnd { it.displayNameAndCards(true) }} looked at each other"
     }
     override val text: String = runBlocking {
         if (participants.size == 1) "You looked at no one"
         else "You made eye contact with ${participants.oxfordAnd { it.displayName() }}"
     }
 
-    override suspend fun textFor(player: OneNightWerewolfPlayer): String {
+    override suspend fun textFor(player: ONWPlayer): String {
         assert(player in participants) { "Can only generate text for players involved" }
         val others = participants.filter { it != player }
         return if (participants.size == 1) "You looked at no one"
@@ -70,15 +71,15 @@ class MutualLookAction(val participants: List<OneNightWerewolfPlayer>) : NightAc
 }
 
 class RevealAction(
-    val source: List<OneNightWerewolfPlayer>,
+    val source: List<ONWPlayer>,
     val sourceRole: OneNightWerewolfRole,
-    val audience: List<OneNightWerewolfPlayer>,
+    val audience: List<ONWPlayer>,
     val audienceRole: OneNightWerewolfRole
 ) : NightAction() {
     constructor(
-        source: OneNightWerewolfPlayer,
+        source: ONWPlayer,
         sourceRole: OneNightWerewolfRole,
-        audience: OneNightWerewolfPlayer,
+        audience: ONWPlayer,
         audienceRole: OneNightWerewolfRole
     ) : this(listOf(source), sourceRole, listOf(audience), audienceRole)
 
@@ -87,15 +88,15 @@ class RevealAction(
     }
 
     override val log: String = runBlocking {
-        "${source.oxfordAnd { it.displayNameAndStartingCard(true) }} " +
+        "${source.oxfordAnd { it.displayMentionAndCards(true) }} " +
                 "revealed themselves as ${sourceRole.displayRole(false)} " +
-                "to ${audience.oxfordAnd { it.displayNameAndStartingCard(true) }}"
+                "to ${audience.oxfordAnd { it.displayNameAndCards(true) }}"
     }
     override val text: String = runBlocking {
         "You have revealed your role as a ${sourceRole.displayRole(false)} to any ${audienceRole.displayRole(false)}(s)"
     }
 
-    override suspend fun textFor(player: OneNightWerewolfPlayer): String {
+    override suspend fun textFor(player: ONWPlayer): String {
         assert(player in source || player in audience) { "Player must be involved to generate text" }
         return if (player in source) buildString {
             append("You have revealed your role as a ")
@@ -118,34 +119,37 @@ class RevealAction(
 }
 
 class PeekAction(
-    val source: OneNightWerewolfPlayer,
-    val target: List<OneNightWerewolfPlayer>
+    val source: ONWPlayer,
+    val target: List<ONWPlayer>
 ) : NightAction() {
-    constructor(source: OneNightWerewolfPlayer, target: OneNightWerewolfPlayer) : this(source, listOf(target))
+    constructor(source: ONWPlayer, target: ONWPlayer) : this(source, listOf(target))
 
     override val log: String = runBlocking {
         when {
             target.size == 1 && target.single() == source -> buildString {
-                append(source.displayName())
+                append(source.displayNameAndCards(true))
                 append(" peeked at their own card and saw ")
                 append(target.single().currentRole.displayRole(true))
             }
-            target.size == 1 && target.single() is CenterCard -> buildString {
-                append(source.displayName())
+
+            target.size == 1 && target.single() is ONWCenterCard -> buildString {
+                append(source.displayNameAndCards(true))
                 append(" peeked at the ")
                 append(target.single().displayName())
                 append(" card in the center and saw ")
                 append(target.single().currentRole.displayRole(true))
             }
+
             target.size == 1 -> buildString {
-                append(source.displayName())
+                append(source.displayNameAndCards(true))
                 append(" peeked at ")
                 append(target.single().displayName())
                 append("'s card and saw ")
                 append(target.single().currentRole.displayRole(true))
             }
-            target.all { it is CenterCard } -> buildString {
-                append(source.displayName())
+
+            target.all { it is ONWCenterCard } -> buildString {
+                append(source.displayNameAndCards(true))
                 append(" peeked at the following cards in the center and saw ")
                 append(target.oxfordAnd {
                     buildString {
@@ -156,8 +160,9 @@ class PeekAction(
                 })
                 append(target.oxfordAnd { it.displayNameAndCard(true) })
             }
+
             else -> buildString {
-                append(source.displayName())
+                append(source.displayNameAndCards(true))
                 append(" peeked at ")
                 append(target.oxfordAnd {
                     buildString {
@@ -176,19 +181,22 @@ class PeekAction(
                 append("You peeked at your own card and saw ")
                 append(target.single().currentRole.displayRole(false))
             }
-            target.size == 1 && target.single() is CenterCard -> buildString {
+
+            target.size == 1 && target.single() is ONWCenterCard -> buildString {
                 append("You peeked at the ")
                 append(target.single().displayName())
                 append(" card in the center and saw ")
                 append(target.single().currentRole.displayRole(false))
             }
+
             target.size == 1 -> buildString {
                 append("You peeked at ")
                 append(target.single().displayName())
                 append("'s card and saw ")
                 append(target.single().currentRole.displayRole(false))
             }
-            target.all { it is CenterCard } -> buildString {
+
+            target.all { it is ONWCenterCard } -> buildString {
                 append("You peeked at the following cards in the center and saw ")
                 append(target.oxfordAnd {
                     buildString {
@@ -199,6 +207,7 @@ class PeekAction(
                 })
                 append(target.oxfordAnd { it.displayNameAndCard(false) })
             }
+
             else -> buildString {
                 append("You peeked at ")
                 append(target.oxfordAnd {
@@ -214,34 +223,42 @@ class PeekAction(
 }
 
 class SwapAction(
-    val source: OneNightWerewolfPlayer,
-    val first: OneNightWerewolfPlayer,
-    val second: OneNightWerewolfPlayer
+    val source: ONWPlayer,
+    val first: ONWPlayer,
+    val second: ONWPlayer
 ) : NightAction() {
-    constructor(source: OneNightWerewolfPlayer, target: OneNightWerewolfPlayer) : this(source, source, target)
+    constructor(source: ONWPlayer, target: ONWPlayer) : this(source, source, target)
 
     override val log: String = runBlocking {
         if (source == first) {
-            if (second is CenterCard)
-                "${source.displayName()} swapped cards with the ${second.displayName()} in the center"
+            if (second is ONWCenterCard)
+                "${source.displayNameAndCards(true)} swapped cards with the ${second.displayNameAndCards(true)} in the center"
             else
-                "${source.displayName()} swapped cards with ${second.displayName()}"
+                "${source.displayNameAndCards(true)} swapped cards with ${second.displayNameAndCards(true)}"
         } else {
-            if (second is CenterCard)
-                "${source.displayName()} swapped ${first.displayName()}'s card with the ${second.displayName()} card in the center"
+            if (second is ONWCenterCard)
+                "${source.displayNameAndCards(true)} swapped ${first.displayNameAndCards(true)}'s card with the ${
+                    second.displayNameAndCards(
+                        true
+                    )
+                } card in the center"
             else
-                "${source.displayName()} swapped ${first.displayName()}'s card and ${second.displayName()}'s card"
+                "${source.displayNameAndCards(true)} swapped ${first.displayNameAndCards(true)}'s card and ${
+                    second.displayNameAndCards(
+                        true
+                    )
+                }'s card"
         }
     }
 
     override val text: String = runBlocking {
         if (source == first) {
-            if (second is CenterCard)
+            if (second is ONWCenterCard)
                 "You swapped cards with the ${second.displayName()} in the center"
             else
                 "You swapped cards with ${second.displayName()}"
         } else {
-            if (second is CenterCard)
+            if (second is ONWCenterCard)
                 "You swapped ${first.displayName()}'s card with the ${second.displayName()} card in the center"
             else
                 "You swapped ${first.displayName()}'s card and ${second.displayName()}'s card"
@@ -250,7 +267,7 @@ class SwapAction(
 
     init {
         assert(second != source) { "If Swap is self swap, source must be first" }
-        assert(first !is CenterCard) { "If swap involves a CenterCard, the CenterCard must be second" }
+        assert(first !is ONWCenterCard) { "If swap involves a CenterCard, the CenterCard must be second" }
         val frole = first.currentRole
         val fteam = first.team
         first.currentRole = second.currentRole

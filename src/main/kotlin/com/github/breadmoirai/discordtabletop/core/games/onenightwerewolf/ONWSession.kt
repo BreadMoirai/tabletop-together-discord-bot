@@ -29,21 +29,22 @@ import kotlin.time.Duration
 import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Duration.Companion.seconds
 
-class OneNightWerewolfSession(
+
+class ONWSession(
     startEvent: ButtonInteractionEvent,
     playerList: List<Member>,
     roles: List<OneNightWerewolfRole>,
     val nightTimer: Duration,
     val dayTimer: Duration,
     val voteTimer: Duration
-) : GameSession<OneNightWerewolfPlayer>(30.minutes, playerList.map { it.idLong }, startEvent) {
-
+) : GameSession<ONWPlayer>(30.minutes, playerList.map { it.idLong }, startEvent) {
+    val endConditions = mutableListOf<ONWEndCondition>()
     val teams = mutableListOf(VillagerTeam(), WerewolfTeam(), TannerTeam())
     val roleBag = roles.shuffled().toMutableList()
     override val players = playerList.mapIndexed { i, member ->
         val role = roleBag.removeFirst()
         val team = getTeamForRole(role)
-        OneNightWerewolfPlayer(
+        ONWPlayer(
             member.user.idLong,
             channel.idLong,
             member.guild.idLong,
@@ -55,11 +56,11 @@ class OneNightWerewolfSession(
         )
     }
     val center = roleBag.mapIndexed { i, role ->
-        CenterCard(i + 1, this, role, getTeamForRole(role))
+        ONWCenterCard(i + 1, this, role, getTeamForRole(role))
     }
     val actions = mutableListOf<NightAction>()
     val id = startEvent.id
-    lateinit var playersToWake: MutableList<OneNightWerewolfPlayer>
+    lateinit var playersToWake: MutableList<ONWPlayer>
     private val startJobs = mutableListOf<Deferred<Option<CompletableFuture<Message>>>>()
 
     override suspend fun launch() {
@@ -105,11 +106,11 @@ class OneNightWerewolfSession(
     }
 
 
-    private fun getTeamForRole(role: OneNightWerewolfRole): OneNightWerewolfTeam {
+    private fun getTeamForRole(role: OneNightWerewolfRole): ONWTeam {
         return teams.find { team -> team.roleInTeamByDefault(role) }!!
     }
 
-    private fun getUnreadyPlayers(): List<OneNightWerewolfPlayer> {
+    private fun getUnreadyPlayers(): List<ONWPlayer> {
         val unreadyPlayers = players.toMutableList()
         for (action in actions.filterIsInstance<StartAction>()) {
             unreadyPlayers.remove(action.player)
@@ -181,7 +182,7 @@ class OneNightWerewolfSession(
             if (player.member().voiceState?.isMuted != true)
                 player.member().mute(true).queue()
         }
-        val votes = mutableMapOf<OneNightWerewolfPlayer?, MutableList<OneNightWerewolfPlayer>>()
+        val votes = mutableMapOf<ONWPlayer?, MutableList<ONWPlayer>>()
             .withDefault {
                 mutableListOf()
             }
@@ -205,10 +206,21 @@ class OneNightWerewolfSession(
             }
         }
         voteMessage.editMessage("Voting is closed!").setReplace(true).queue()
-        val voteList = votes.entries.sortedByDescending { entry -> entry.value.size }.toList()
-        channel.sendMessage("")
+        val voteList: VoteList = votes.entries
+            .map { entry -> entry.key!! to entry.value }
+            .sortedByDescending { (_, votes) -> votes.size }
+            .toList()
+        if (voteList.all { (_, votes) -> votes.size == 1 } && voteList.size == players.size) {
+
+        } else {
+            channel.sendMessage("Voting has been concluded...").queue()
+            channel.sendTyping().queue()
+            delay(3.seconds)
+
+        }
     }
 
 
 }
+
 

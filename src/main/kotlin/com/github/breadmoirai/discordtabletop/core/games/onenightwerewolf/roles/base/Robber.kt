@@ -3,8 +3,8 @@ package com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.roles
 import arrow.core.getOrElse
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.NightAction
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.NoAction
-import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.OneNightWerewolfPlayer
-import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.OneNightWerewolfSession
+import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.ONWPlayer
+import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.ONWSession
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.PeekAction
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.SwapAction
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.roles.OneNightWerewolfRole
@@ -16,8 +16,8 @@ class Robber : OneNightWerewolfRole() {
     override val isWerewolf: Boolean = false
 
     override suspend fun wakeUp(
-        session: OneNightWerewolfSession,
-        player: OneNightWerewolfPlayer,
+        session: ONWSession,
+        player: ONWPlayer,
         timeout: Duration
     ): List<NightAction> {
         logger.info(session, "${player.displayNameAndStartingCard(true)} is waking up")

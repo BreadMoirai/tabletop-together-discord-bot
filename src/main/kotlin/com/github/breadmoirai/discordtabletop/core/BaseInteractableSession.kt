@@ -42,7 +42,7 @@ import java.time.Duration as JavaDuration
 abstract class BaseInteractableSession<T : MemberRef>(
     override val inactivityLimit: Duration,
     override val trackedUsers: List<Long>,
-    initialInteraction: IReplyCallback
+    initialInteraction: IDeferrableCallback
 ) : KoinComponent, InteractableSession<T> {
     companion object {
         @JvmStatic
@@ -98,9 +98,11 @@ abstract class BaseInteractableSession<T : MemberRef>(
                 prior == null -> {
                     logger.info(this, "No prior interaction found for ${member.member().effectiveName}}")
                 }
+
                 prior.hook.isExpired -> {
                     logger.info(this, "Expired interaction found for ${member.member().effectiveName}")
                 }
+
                 else -> {
                     logger.info(this, "Valid interaction found for ${member.member().effectiveName}")
                 }
@@ -166,9 +168,11 @@ abstract class BaseInteractableSession<T : MemberRef>(
             prior == null -> {
                 logger.info(this, "No prior interaction found for ${member.member().effectiveName}}")
             }
+
             prior.hook.isExpired -> {
                 logger.info(this, "Expired interaction found for ${member.member().effectiveName}")
             }
+
             else -> {
                 logger.info(this, "Valid interaction found for ${member.member().effectiveName}")
                 return prior.some()
@@ -215,12 +219,12 @@ abstract class BaseInteractableSession<T : MemberRef>(
     protected open suspend fun onSessionTimeout() {
         cleanup()
         if (!lastInteraction.hook.isExpired)
-            lastInteraction.hook.editOriginal(com.github.breadmoirai.discordtabletop.core.BaseInteractableSession.Companion.cancelledGame)
+            lastInteraction.hook.editOriginal(cancelledGame).queue()
         else
             channel.editMessageById(
                 messageId,
-                com.github.breadmoirai.discordtabletop.core.BaseInteractableSession.Companion.cancelledGame
-            )
+                cancelledGame
+            ).queue()
         gameCancelled.invokeEvent(Unit)
     }
 

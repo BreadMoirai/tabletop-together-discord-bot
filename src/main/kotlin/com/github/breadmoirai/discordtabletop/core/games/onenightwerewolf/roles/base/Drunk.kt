@@ -4,8 +4,8 @@ import arrow.core.getOrElse
 import com.github.breadmoirai.discordtabletop.core.InteractableSession.Companion.randomId
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.NightAction
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.NoAction
-import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.OneNightWerewolfPlayer
-import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.OneNightWerewolfSession
+import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.ONWPlayer
+import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.ONWSession
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.SwapAction
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.roles.OneNightWerewolfRole
 import dev.minn.jda.ktx.messages.MessageEdit
@@ -17,8 +17,8 @@ class Drunk : OneNightWerewolfRole() {
     override val isWerewolf: Boolean = false
 
     override suspend fun wakeUp(
-        session: OneNightWerewolfSession,
-        player: OneNightWerewolfPlayer,
+        session: ONWSession,
+        player: ONWPlayer,
         timeout: Duration
     ): List<NightAction> {
         val centerButtonIds = session.center.map { randomId("center-card${it.userId}") to it }

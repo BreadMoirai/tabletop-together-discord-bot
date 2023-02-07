@@ -20,7 +20,7 @@ import net.dv8tion.jda.api.utils.messages.MessageCreateData
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Duration.Companion.minutes
 
-class OneNightWerewolfLobby(commandEvent: GenericCommandInteractionEvent) :
+class ONWLobby(commandEvent: GenericCommandInteractionEvent) :
     GameLobby(OneNightWerewolf, 24.hours, commandEvent) {
 
     val roles: MutableList<OneNightWerewolfRole> = mutableListOf()

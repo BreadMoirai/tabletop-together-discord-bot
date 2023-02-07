@@ -52,6 +52,12 @@ open class Player(
         }
     }
 
+    open fun displayMention(): String {
+        return runBlocking {
+            "${emoji.formatted} ${member().asMention}"
+        }
+    }
+
     open suspend fun asOption(): SelectOption {
         return SelectOption.of(member().effectiveName, userId.toString())
     }

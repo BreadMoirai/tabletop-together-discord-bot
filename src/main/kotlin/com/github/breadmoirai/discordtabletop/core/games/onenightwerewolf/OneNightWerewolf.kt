@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionE
 import net.dv8tion.jda.api.interactions.components.ComponentInteraction
 import org.koin.core.component.KoinComponent
 import kotlin.time.Duration.Companion.minutes
+import kotlin.time.Duration.Companion.seconds
 
 object OneNightWerewolf : TabletopGame, KoinComponent {
     override val id = "onenightwerewolf"
@@ -13,18 +14,19 @@ object OneNightWerewolf : TabletopGame, KoinComponent {
     override val playerCount = 1..20
 
     override suspend fun openLobby(event: GenericCommandInteractionEvent) {
-        val gameLobby = OneNightWerewolfLobby(event)
+        val gameLobby = ONWLobby(event)
         gameLobby.launch()
         gameLobby.gameStarted.subscribe { _, startGameEvent ->
             println("Game started")
             // cancel()
             // should just get garbage collected as after the gameLobby closes
-            OneNightWerewolfSession(
+            ONWSession(
                 startGameEvent,
                 gameLobby.players,
                 gameLobby.roles,
                 gameLobby.nightTimer,
-                5.minutes
+                5.minutes,
+                30.seconds
             ).launch()
         }
     }

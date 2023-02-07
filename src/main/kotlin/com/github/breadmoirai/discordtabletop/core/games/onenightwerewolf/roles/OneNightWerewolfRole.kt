@@ -1,8 +1,8 @@
 package com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.roles
 
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.NightAction
-import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.OneNightWerewolfPlayer
-import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.OneNightWerewolfSession
+import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.ONWPlayer
+import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.ONWSession
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.roles.base.Doppleganger
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.roles.base.Drunk
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.roles.base.Hunter
@@ -26,8 +26,8 @@ abstract class OneNightWerewolfRole(number: Int = 0) {
     open val wakeOrder: Int? = null
 
     open suspend fun wakeUp(
-        session: OneNightWerewolfSession,
-        player: OneNightWerewolfPlayer,
+        session: ONWSession,
+        player: ONWPlayer,
         timeout: Duration
     ): List<NightAction> {
         throw NotImplementedError("#wakeUp is not implemented for class ${this::class.qualifiedName}")

@@ -15,9 +15,9 @@ import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.roles.
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.roles.base.Werewolf
 import kotlin.reflect.KClass
 
-abstract class OneNightWerewolfTeam {
+abstract class ONWTeam {
     abstract val name: String
-    val players: MutableList<OneNightWerewolfPlayer> = mutableListOf()
+    val players: MutableList<ONWPlayer> = mutableListOf()
     abstract val defaultRoles: Set<KClass<out OneNightWerewolfRole>>
 
     fun roleInTeamByDefault(role: OneNightWerewolfRole): Boolean {
@@ -25,12 +25,12 @@ abstract class OneNightWerewolfTeam {
     }
 }
 
-class WerewolfTeam : OneNightWerewolfTeam() {
+class WerewolfTeam : ONWTeam() {
     override val name = "Werewolves"
     override val defaultRoles = setOf(Werewolf::class, Minion::class)
 }
 
-class VillagerTeam : OneNightWerewolfTeam() {
+class VillagerTeam : ONWTeam() {
     override val name = "Villagers"
     override val defaultRoles =
         setOf(
@@ -46,7 +46,7 @@ class VillagerTeam : OneNightWerewolfTeam() {
         )
 }
 
-class TannerTeam : OneNightWerewolfTeam() {
+class TannerTeam : ONWTeam() {
     override val name = "Tanner"
     override val defaultRoles = setOf(Tanner::class)
 }

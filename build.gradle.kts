@@ -26,11 +26,18 @@ dependencies {
     // https://github.com/MinnDevelopment/jda-ktx
     implementation("com.github.minndevelopment:jda-ktx:17eb77a")
 
+    // https://docs.kweb.io/book/gettingstarted.html
+    implementation("io.kweb:kweb-core:1.3.6")
+
     // https://github.com/lightbend/config
     implementation("com.typesafe:config:1.4.2")
 
     // https://github.com/broo2s/typedmap
     implementation("me.broot.typedmap:typedmap-core:1.0.0")
+
+    // https://github.com/square/moshi
+    implementation("com.squareup.moshi:moshi:1.14.0")
+    implementation("com.squareup.moshi:moshi-kotlin:1.14.0")
 
     // https://mvnrepository.com/artifact/ch.qos.logback/logback-classic
     implementation("ch.qos.logback:logback-classic:1.4.5")
