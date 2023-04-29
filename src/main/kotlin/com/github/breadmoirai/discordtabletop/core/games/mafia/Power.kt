@@ -1,11 +1,12 @@
 package com.github.breadmoirai.discordtabletop.core.games.mafia
 
-abstract class Power {
-    abstract val action: Action
+interface Power {
+    val action: Action
+
 }
 
 
-class DayPower(override val action: Action)
+//class DayPower(override val action: Action)
 
 
 

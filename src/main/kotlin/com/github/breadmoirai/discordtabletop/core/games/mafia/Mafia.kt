@@ -1,12 +1,10 @@
 package com.github.breadmoirai.discordtabletop.core.games.mafia
 
 import com.github.breadmoirai.discordtabletop.core.games.TabletopGame
-import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.ONWLobby
-import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.ONWSession
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import net.dv8tion.jda.api.Permission
 import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent
-import kotlin.time.Duration.Companion.minutes
 
 object Mafia : TabletopGame {
     override val id: String = "mafia"
@@ -15,10 +13,11 @@ object Mafia : TabletopGame {
     override val playerCount: IntRange = 3..24
 
     val openLobbies: MutableMap<String, MafiaLobby> = mutableMapOf()
-    val roles: MutableMap<String, Role> = mutableMapOf()
+    val roles: MutableMap<String, MafiaRole> = mutableMapOf()
     val moshi = Moshi.Builder()
         .addLast(KotlinJsonAdapterFactory())
         .build()
+
     override suspend fun openLobby(event: GenericCommandInteractionEvent) {
         val gameLobby = MafiaLobby(event)
         openLobbies[gameLobby.gameId] = gameLobby
@@ -36,4 +35,15 @@ object Mafia : TabletopGame {
 //            ).launch()
         }
     }
+
+
+    val requiredPermissions = listOf(
+        Permission.VIEW_CHANNEL,
+        Permission.MESSAGE_SEND,
+        Permission.MESSAGE_SEND_IN_THREADS,
+        Permission.MANAGE_THREADS,
+        Permission.CREATE_PRIVATE_THREADS,
+        Permission.NICKNAME_MANAGE,
+        Permission.VOICE_MUTE_OTHERS
+    )
 }

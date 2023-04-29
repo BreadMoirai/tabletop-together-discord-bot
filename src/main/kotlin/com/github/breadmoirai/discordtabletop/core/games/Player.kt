@@ -46,13 +46,13 @@ open class Player(
 //            return java.time.Duration.between(hook.interaction.timeCreated, Instant.now()).toKotlinDuration()
 //        }
 
-    open fun displayName(): String {
+    open suspend fun displayName(): String {
         return runBlocking {
             "${emoji.formatted} ${member().effectiveName}"
         }
     }
 
-    open fun displayMention(): String {
+    open suspend fun displayMention(): String {
         return runBlocking {
             "${emoji.formatted} ${member().asMention}"
         }

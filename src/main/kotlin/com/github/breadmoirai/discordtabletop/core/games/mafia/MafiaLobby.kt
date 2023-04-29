@@ -16,7 +16,7 @@ import kotlin.time.Duration.Companion.hours
 
 class MafiaLobby(commandEvent: GenericCommandInteractionEvent) :
     GameLobby(Mafia, 24.hours, commandEvent) {
-    val playSet: MafiaPlaySet = MafiaPlaySet()
+//    val playSet: MafiaPlaySet = MafiaPlaySet()
 
     val gameId = randomId("mafia")
     private val editId = randomId("edit-game")

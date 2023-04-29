@@ -54,7 +54,7 @@ class SelectedTarget(
 }
 
 class RoleTarget(
-    val list: List<Role>,
+    val list: List<MafiaRole>,
     val self: Boolean,
     val count: Int = 1
 ) : ActionTarget() {

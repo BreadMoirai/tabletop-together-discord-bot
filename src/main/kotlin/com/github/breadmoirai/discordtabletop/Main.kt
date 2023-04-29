@@ -1,5 +1,6 @@
 package com.github.breadmoirai.discordtabletop
 
+import com.github.breadmoirai.discordtabletop.core.games.mafia.MafiaPlayer
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.OneNightWerewolf
 import com.github.breadmoirai.discordtabletop.jda.requireOption
 import com.github.breadmoirai.discordtabletop.logging.logger
@@ -12,11 +13,16 @@ import dev.minn.jda.ktx.interactions.commands.restrict
 import dev.minn.jda.ktx.interactions.commands.slash
 import dev.minn.jda.ktx.interactions.commands.updateCommands
 import dev.minn.jda.ktx.jdabuilder.light
+import dev.minn.jda.ktx.messages.MessageCreate
+import kweb.InputType
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.requests.GatewayIntent
+import net.dv8tion.jda.api.utils.TimeFormat
 import org.koin.core.context.startKoin
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
+import kotlin.time.Duration.Companion.minutes
+import kotlin.time.toJavaDuration
 
 fun main() {
     val logger by logger()

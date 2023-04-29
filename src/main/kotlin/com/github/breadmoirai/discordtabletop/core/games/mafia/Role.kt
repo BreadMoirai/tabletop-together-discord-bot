@@ -1,8 +1,9 @@
 package com.github.breadmoirai.discordtabletop.core.games.mafia
 
-class Role(val name: String, val alignment: Alignment) {
-    fun copy(): Role {
-        return Role(name, alignment)
+class MafiaRole(val name: String, val alignment: Alignment, val tags: List<MafiaTag>) {
+    fun copy(): MafiaRole {
+        return MafiaRole(name, alignment, tags)
     }
 }
+
 

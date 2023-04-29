@@ -19,7 +19,7 @@ class ONWCenterCard(
     team
 ) {
 
-    override fun displayName(): String {
+    override suspend fun displayName(): String {
         return emoji.formatted
     }
 
