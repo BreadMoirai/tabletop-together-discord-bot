@@ -19,15 +19,15 @@ class ONWCenterCard(
     team
 ) {
 
-    override suspend fun displayName(): String {
+    override fun displayName(): String {
         return emoji.formatted
     }
 
-    override suspend fun asOption(): SelectOption {
+    override fun asOption(): SelectOption {
         return SelectOption.of(" ", userId.toString()).withEmoji(emoji)
     }
 
-    override suspend fun matchesOption(option: SelectOption): Boolean {
+    override fun matchesOption(option: SelectOption): Boolean {
         return super.matchesOption(option)
     }
 }

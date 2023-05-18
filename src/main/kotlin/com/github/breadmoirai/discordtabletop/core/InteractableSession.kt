@@ -1,7 +1,6 @@
 package com.github.breadmoirai.discordtabletop.core
 
 import arrow.core.Option
-import com.github.breadmoirai.discordtabletop.core.games.MemberRef
 import com.github.breadmoirai.discordtabletop.logging.ContextAwareLogger
 import com.github.breadmoirai.discordtabletop.reactive.Event
 import dev.minn.jda.ktx.events.CoroutineEventListener
@@ -19,21 +18,22 @@ import kotlin.random.Random
 import kotlin.random.nextLong
 import kotlin.time.Duration
 
-interface InteractableSession<T : MemberRef> {
+interface InteractableSession {
     val logger: ContextAwareLogger
     val inactivityLimit: Duration
     val trackedUsers: List<Long>
     val jda: JDA
     val channel: TextChannel
-    val gameCancelled: Event<Unit>
-    var lastOriginalInteraction: IDeferrableCallback
-    var lastInteraction: IDeferrableCallback
+    val onCancel: Event<Long>
+    var lastOriginalInteraction: IReplyCallback
+    var lastInteraction: IReplyCallback
     var messageId: Long
     val listeners: MutableList<CoroutineEventListener>
     val hooks: MutableMap<Long, IReplyCallback>
     val hookRequests: MutableMap<Long, CompletableDeferred<Option<IReplyCallback>>>
 
     companion object {
+
         /**
          * Creates a random id with supplied [prefix] in the format `$[prefix]:$randomPositiveLong`
          *
@@ -48,12 +48,12 @@ interface InteractableSession<T : MemberRef> {
     suspend fun launch()
 
     suspend fun requestInteraction(
-        members: List<T>,
+        members: List<Long>,
         timeout: Duration,
         useMention: Boolean
-    ): List<Pair<T, Deferred<Option<IReplyCallback>>>>
+    ): List<Pair<Long, Deferred<Option<IReplyCallback>>>>
 
-    suspend fun awaitInteraction(member: T, timeout: Duration, useMention: Boolean): Option<IReplyCallback>
+    suspend fun awaitInteraction(member: Long, timeout: Duration, useMention: Boolean): Option<IReplyCallback>
 
     suspend fun onRefreshHook(listener: CoroutineEventListener, event: ButtonInteractionEvent)
 

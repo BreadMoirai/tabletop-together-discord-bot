@@ -29,9 +29,10 @@ class Werewolf(number: Int = 0) : OneNightWerewolfRole(number) {
             append(otherWerewolves.map { it.displayNameAndStartingCard(true) })
         })
         val action = MutualLookAction(wolves)
-        val interactions = session.requestInteraction(wolves, timeout, false)
+        val interactions = session.requestInteraction(wolves.map { it.userId }, timeout, false)
         coroutineScope {
-            interactions.forEach { (p, def) ->
+            interactions.forEach { (id, def) ->
+                val p = wolves.find { it.userId == id }!!
                 launch {
                     def.await().tap {
                         it.hook.sendMessage("You woke up and did the following: " + action.textFor(p))

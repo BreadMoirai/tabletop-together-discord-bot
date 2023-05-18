@@ -39,21 +39,16 @@ import kotlin.time.Duration.Companion.seconds
 import kotlin.time.toKotlinDuration
 import java.time.Duration as JavaDuration
 
-abstract class BaseInteractableSession<T : MemberRef>(
+abstract class BaseInteractableSession(
     override val inactivityLimit: Duration,
     override val trackedUsers: List<Long>,
-    initialInteraction: IDeferrableCallback
-) : KoinComponent, InteractableSession<T> {
-    companion object {
-        @JvmStatic
-        protected val cancelledGame = MessageEdit("Game Cancelled", components = listOf())
-    }
-
-    final override var lastInteraction: IDeferrableCallback = initialInteraction
-    final override var lastOriginalInteraction: IDeferrableCallback = initialInteraction
+    initialInteraction: IReplyCallback
+) : KoinComponent, InteractableSession {
+    final override var lastInteraction: IReplyCallback = initialInteraction
+    final override var lastOriginalInteraction: IReplyCallback = initialInteraction
     override val jda by inject<JDA>()
     override val channel = lastInteraction.messageChannel as TextChannel
-    override val gameCancelled: Event<Unit> = event()
+    override val onCancel: Event<Long> = event()
     override val hooks = mutableMapOf<Long, IReplyCallback>()
     override val hookRequests = mutableMapOf<Long, CompletableDeferred<Option<IReplyCallback>>>()
     override var messageId by Delegates.notNull<Long>()
@@ -86,45 +81,37 @@ abstract class BaseInteractableSession<T : MemberRef>(
     // use T with (T) -> Member
     // add override for Player?
     override suspend fun requestInteraction(
-        members: List<T>,
+        members: List<Long>,
         timeout: Duration,
         useMention: Boolean
-    ): List<Pair<T, Deferred<Option<IReplyCallback>>>> {
+    ): List<Pair<Long, Deferred<Option<IReplyCallback>>>> {
         assert(members.isNotEmpty()) { "members may not be empty" }
-        logger.info(this, "Interaction requested for members: ${members.oxfordAnd { it.member().effectiveName }}")
+        logger.info(this, "Interaction requested for members: ${members.oxfordAnd { "$it" }}")
         for (member in members) {
-            val prior = hooks[member.member().idLong]
+            val prior = hooks[member]
             when {
-                prior == null -> {
-                    logger.info(this, "No prior interaction found for ${member.member().effectiveName}}")
-                }
-
-                prior.hook.isExpired -> {
-                    logger.info(this, "Expired interaction found for ${member.member().effectiveName}")
-                }
-
-                else -> {
-                    logger.info(this, "Valid interaction found for ${member.member().effectiveName}")
-                }
+                prior == null -> logger.info(this, "No prior interaction found for $member")
+                prior.hook.isExpired -> logger.info(this, "Expired interaction found for $member")
+                else -> logger.info(this, "Valid interaction found for $member")
             }
         }
-        if (members.all { hooks[it.member().idLong]?.hook?.isExpired == false }) {
+        if (members.all { hooks[it]?.hook?.isExpired == false }) {
             logger.info(
                 this,
-                "Valid interactions found for all members: ${members.oxfordAnd { it.member().effectiveName }}"
+                "Valid interactions found for all members: ${members.oxfordAnd { "$it" }}"
             )
-            return members.map { it to CompletableDeferred(hooks[it.member().idLong]!!.some()) }
+            return members.map { it to CompletableDeferred(hooks[it]!!.some()) }
         }
         logger.info(
             this,
-            "Creating interaction requests for members: ${members.oxfordAnd { it.member().effectiveName }}"
+            "Creating interaction requests for members: ${members.oxfordAnd { "$it" }}"
         )
         val requests = members.map { member ->
             val deferred = CompletableDeferred<Option<IReplyCallback>>()
-            if (hookRequests[member.member().idLong] != null) {
-                error("Interaction hook already requested for member ${member.member().effectiveName}(${member.member().idLong})")
+            if (hookRequests[member] != null) {
+                error("Interaction hook already requested for member ${member}(${member})")
             }
-            hookRequests[member.member().idLong] = deferred
+            hookRequests[member] = deferred
             member to deferred
         }
         coroutineScope {
@@ -133,15 +120,15 @@ abstract class BaseInteractableSession<T : MemberRef>(
                     val option = def.await()
                     if (option is None) return@launch
                     val remaining = requests.filter { (_, r) -> !r.isCompleted }
-                    if (remaining.all { (m, _) -> hooks[m.member().idLong]?.hook?.isExpired == false }) {
-                        remaining.forEach { (m, r) -> r.complete(hooks[m.member().idLong]!!.some()) }
+                    if (remaining.all { (m, _) -> hooks[m]?.hook?.isExpired == false }) {
+                        remaining.forEach { (m, r) -> r.complete(hooks[m]!!.some()) }
                     }
                 }
             }
         }
         channel.sendMessage(MessageCreate {
             content =
-                if (useMention) "${members.oxfordAnd { member -> member.member().asMention }}; Please press the button below to continue"
+                if (useMention) "${members.oxfordAnd { member -> "<@$member>" }}; Please press the button below to continue"
                 else "All players, please press the button below to continue"
             actionRow(primary(refreshHookId, "Press here to continue..."))
         }).queue()
@@ -150,7 +137,7 @@ abstract class BaseInteractableSession<T : MemberRef>(
                 delay(timeout)
                 requests.forEach { (m, r) ->
                     r.complete(None)
-                    hookRequests.remove(m.member().idLong, r)
+                    hookRequests.remove(m, r)
                 }
             }
         }
@@ -158,38 +145,38 @@ abstract class BaseInteractableSession<T : MemberRef>(
     }
 
     override suspend fun awaitInteraction(
-        member: T,
+        member: Long,
         timeout: Duration,
         useMention: Boolean
     ): Option<IReplyCallback> {
-        logger.info(this, "Interaction requested for member: ${member.member().effectiveName}}")
-        val prior = hooks[member.member().idLong]
+        logger.info(this, "Interaction requested for member: $member")
+        val prior = hooks[member]
         when {
             prior == null -> {
-                logger.info(this, "No prior interaction found for ${member.member().effectiveName}}")
+                logger.info(this, "No prior interaction found for $member}")
             }
 
             prior.hook.isExpired -> {
-                logger.info(this, "Expired interaction found for ${member.member().effectiveName}")
+                logger.info(this, "Expired interaction found for $member")
             }
 
             else -> {
-                logger.info(this, "Valid interaction found for ${member.member().effectiveName}")
+                logger.info(this, "Valid interaction found for $member")
                 return prior.some()
             }
         }
         logger.info(
             this,
-            "Creating interaction requests for member: ${member.member().effectiveName}"
+            "Creating interaction requests for member: $member"
         )
         val deferred = CompletableDeferred<Option<IReplyCallback>>()
-        if (hookRequests[member.member().idLong] != null) {
-            error("Interaction hook already requested for member ${member.member().effectiveName}(${member.member().idLong})")
+        if (hookRequests[member] != null) {
+            error("Interaction hook already requested for member $member")
         }
-        hookRequests[member.member().idLong] = deferred
+        hookRequests[member] = deferred
         channel.sendMessage(MessageCreate {
             content =
-                if (useMention) "${member.member().asMention}; Please press the button below to continue"
+                if (useMention) "<@$member>; Please press the button below to continue"
                 else "All players, please press the button below to continue"
             actionRow(primary(refreshHookId, "Press here to continue..."))
         }).queue()
@@ -218,14 +205,14 @@ abstract class BaseInteractableSession<T : MemberRef>(
 
     protected open suspend fun onSessionTimeout() {
         cleanup()
-        if (!lastInteraction.hook.isExpired)
-            lastInteraction.hook.editOriginal(cancelledGame).queue()
-        else
-            channel.editMessageById(
-                messageId,
-                cancelledGame
-            ).queue()
-        gameCancelled.invokeEvent(Unit)
+//        if (!lastInteraction.hook.isExpired)
+//            lastInteraction.hook.edit(cancelledGame).queue()
+//        else
+//            channel.editMessageById(
+//                messageId,
+//                cancelledGame
+//            ).queue()
+        onCancel.invokeEvent(messageId)
     }
 
 

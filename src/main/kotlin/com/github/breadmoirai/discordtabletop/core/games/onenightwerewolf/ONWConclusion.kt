@@ -2,6 +2,7 @@ package com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf
 
 import com.github.breadmoirai.discordtabletop.core.BaseInteractableSession
 import com.github.breadmoirai.discordtabletop.core.InteractableSession.Companion.randomId
+import com.github.breadmoirai.discordtabletop.util.buildString
 import dev.minn.jda.ktx.interactions.components.danger
 import dev.minn.jda.ktx.interactions.components.primary
 import dev.minn.jda.ktx.interactions.components.success
@@ -10,7 +11,7 @@ import kotlin.time.Duration.Companion.hours
 
 class ONWConclusion(
     val session: ONWSession, val messages: List<String>, val winningTeams: Set<ONWTeam>, val votes: VoteList
-) : BaseInteractableSession<ONWPlayer>(24.hours, session.trackedUsers, session.lastInteraction) {
+) : BaseInteractableSession(24.hours, session.trackedUsers, session.lastInteraction) {
     val players = session.players
 
     override suspend fun launch() {

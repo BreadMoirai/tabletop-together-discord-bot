@@ -30,7 +30,7 @@ abstract class GameSession<T : Player>(
     inactivityLimit: Duration,
     trackedUsers: List<Long>,
     initialInteraction: IReplyCallback
-) : BaseInteractableSession<T>(
+) : BaseInteractableSession(
     inactivityLimit,
     trackedUsers,
     initialInteraction
@@ -64,7 +64,7 @@ abstract class GameSession<T : Player>(
             this,
             "${source.displayName()} is selecting another player from ${from.oxfordAnd { it.displayName() }}"
         )
-        val resp = awaitInteraction(source, timeout, useMention).getOrElse {
+        val resp = awaitInteraction(source.userId, timeout, useMention).getOrElse {
             return None
         }
         val id = InteractableSession.randomId("select-other-player")
@@ -133,14 +133,14 @@ abstract class GameSession<T : Player>(
                 players.zip(buttonPresses)
             }
         } else {
-            val interactions = requestInteraction(players, timeout, useMention)
+            val interactions = requestInteraction(players.map { it.userId }, timeout, useMention)
             coroutineScope {
                 interactions.map { (p, interaction) ->
-                    p to async {
+                    players.find { it.userId == p }!! to async {
                         interaction.await().flatMap { interaction ->
-                            logger.info(this@GameSession, "Sending select message for ${p.displayName()}")
+                            logger.info(this@GameSession, "Sending select message for $p")
                             interaction.hook.sendMessage(messageData).setEphemeral(true).await()
-                            awaitButtonPress(buttons.map { b -> b.id!! }, p.userId, timeout).tap { event ->
+                            awaitButtonPress(buttons.map { b -> b.id!! }, p, timeout).tap { event ->
                                 event.reply("You have selected **${event.button.emoji?.formatted ?: ""}${event.button.label}**")
                                     .setEphemeral(true)
                                     .queue()
@@ -170,7 +170,7 @@ abstract class GameSession<T : Player>(
             this,
             "${player.displayName()} is selecting from ${buttons.oxfordAnd { it.id!! }}"
         )
-        val interaction = awaitInteraction(player, timeout, useMention).getOrElse { return None }
+        val interaction = awaitInteraction(player.userId, timeout, useMention).getOrElse { return None }
         logger.info(this@GameSession, "Sending select message for ${player.displayName()}")
         val sent = interaction.hook.sendMessage(MessageCreate(message, components = listOf(ActionRow.of(buttons))))
             .setEphemeral(true).await()

@@ -18,7 +18,7 @@ class Insomniac : OneNightWerewolfRole() {
         player: ONWPlayer,
         timeout: Duration
     ): List<NightAction> {
-        val interaction = session.awaitInteraction(player, timeout, false).getOrElse {
+        val interaction = session.awaitInteraction(player.userId, timeout, false).getOrElse {
             return listOf(NoAction(player))
         }
         val action = PeekAction(player, player)

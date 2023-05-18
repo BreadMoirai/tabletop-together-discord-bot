@@ -12,5 +12,5 @@ interface State<T : Any> {
 
     suspend fun set(newValue: T)
 
-    suspend fun subscribe(scope: CoroutineScope, onChange: Cancellable.(T) -> Unit): Cancellable
+    suspend fun subscribe(scope: CoroutineScope, onChange: suspend Cancellable.(T) -> Unit): Cancellable
 }

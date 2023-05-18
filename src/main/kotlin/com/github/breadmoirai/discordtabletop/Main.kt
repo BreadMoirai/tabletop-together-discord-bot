@@ -1,28 +1,21 @@
 package com.github.breadmoirai.discordtabletop
 
-import com.github.breadmoirai.discordtabletop.core.games.mafia.MafiaPlayer
+import com.github.breadmoirai.discordtabletop.core.games.frosthaven.Frosthaven
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.OneNightWerewolf
 import com.github.breadmoirai.discordtabletop.jda.requireOption
 import com.github.breadmoirai.discordtabletop.logging.logger
+import com.github.breadmoirai.discordtabletop.storage.Storage
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
+import dev.minn.jda.ktx.coroutines.await
 import dev.minn.jda.ktx.events.onCommand
-import dev.minn.jda.ktx.interactions.commands.choice
-import dev.minn.jda.ktx.interactions.commands.option
-import dev.minn.jda.ktx.interactions.commands.restrict
-import dev.minn.jda.ktx.interactions.commands.slash
-import dev.minn.jda.ktx.interactions.commands.updateCommands
+import dev.minn.jda.ktx.interactions.commands.*
 import dev.minn.jda.ktx.jdabuilder.light
-import dev.minn.jda.ktx.messages.MessageCreate
-import kweb.InputType
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.requests.GatewayIntent
-import net.dv8tion.jda.api.utils.TimeFormat
 import org.koin.core.context.startKoin
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
-import kotlin.time.Duration.Companion.minutes
-import kotlin.time.toJavaDuration
 
 fun main() {
     val logger by logger()
@@ -64,14 +57,16 @@ fun main() {
 //    }
     val discord = module {
         single { jda }
+        single { Storage}
         single(named("main")) {
             jda.getGuildById(1032201616272666694) ?: error("Bot must be in main guild to function")
         }
+
     }
     startKoin {
         modules(discord)
     }
-
+    Frosthaven.onReady()
     jda.onCommand("play") { event ->
         val game = event.requireOption("game").asString
         logger.info("\\play game=$game")

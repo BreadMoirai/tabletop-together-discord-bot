@@ -1,5 +1,8 @@
 package com.github.breadmoirai.discordtabletop.util
 
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
+
 suspend inline fun <T> List<T>.oxfordAnd(crossinline transform: suspend (T) -> String): String {
     assert(isNotEmpty()) { "List may not be empty" }
     if (size == 1) return transform(single())
@@ -40,4 +43,10 @@ fun List<String>.oxfordAnd(): String {
     } else {
         "$first and $last"
     }
+}
+
+@kotlin.contracts.ExperimentalContracts
+suspend inline fun buildString(crossinline builderAction: suspend StringBuilder.() -> Unit): String {
+    contract { callsInPlace(builderAction, InvocationKind.EXACTLY_ONCE) }
+    return StringBuilder().also { builderAction(it) }.toString()
 }

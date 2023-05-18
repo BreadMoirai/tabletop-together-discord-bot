@@ -22,7 +22,7 @@ import java.time.Instant
 import kotlin.time.Duration
 
 class LobbyMember(val member: Member) : MemberRef {
-    override suspend fun member(): Member {
+    override fun member(): Member {
         return member
     }
 }
@@ -31,7 +31,7 @@ abstract class GameLobby(
     val game: TabletopGame,
     inactivityLimit: Duration,
     commandEvent: GenericCommandInteractionEvent
-) : com.github.breadmoirai.discordtabletop.core.BaseInteractableSession<LobbyMember>(inactivityLimit, listOf(), commandEvent) {
+) : com.github.breadmoirai.discordtabletop.core.BaseInteractableSession(inactivityLimit, listOf(), commandEvent) {
 
     init {
         assert(commandEvent.isFromGuild) { "Lobby may only be started in a guild" }

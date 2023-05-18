@@ -1,6 +1,6 @@
 package com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf
 
-import com.github.breadmoirai.discordtabletop.core.InteractableSession.Companion.randomId
+import com.github.breadmoirai.discordtabletop.core.interactable.InteractableSession.Companion.randomId
 import com.github.breadmoirai.discordtabletop.core.games.GameLobby
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.roles.OneNightWerewolfRole
 import com.github.breadmoirai.discordtabletop.discord.emoji

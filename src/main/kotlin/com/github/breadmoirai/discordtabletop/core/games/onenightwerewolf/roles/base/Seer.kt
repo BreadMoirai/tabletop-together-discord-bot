@@ -1,7 +1,7 @@
 package com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.roles.base
 
 import arrow.core.getOrElse
-import com.github.breadmoirai.discordtabletop.core.InteractableSession.Companion.randomId
+import com.github.breadmoirai.discordtabletop.core.interactable.InteractableSession.Companion.randomId
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.NightAction
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.NoAction
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.ONWPlayer

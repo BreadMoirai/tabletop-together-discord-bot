@@ -2,11 +2,7 @@ package com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.roles
 
 import arrow.core.getOrElse
 import com.github.breadmoirai.discordtabletop.core.InteractableSession.Companion.randomId
-import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.NightAction
-import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.NoAction
-import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.ONWPlayer
-import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.ONWSession
-import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.SwapAction
+import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.*
 import com.github.breadmoirai.discordtabletop.core.games.onenightwerewolf.roles.OneNightWerewolfRole
 import dev.minn.jda.ktx.messages.MessageEdit
 import net.dv8tion.jda.api.interactions.components.buttons.Button

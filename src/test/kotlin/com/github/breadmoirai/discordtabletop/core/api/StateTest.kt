@@ -1,6 +1,6 @@
 package com.github.breadmoirai.discordtabletop.core.api
 
-import com.github.breadmoirai.discordtabletop.api.core.api.reactive.State
+import com.github.breadmoirai.discordtabletop.reactive.state
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.joinAll
@@ -14,7 +14,7 @@ internal class StateTest {
     @Test
     fun `set value`() {
         runBlocking {
-            val state = State("first")
+            val state = state("first")
             println("state.value = ${state.value}")
             assertEquals("first", state.value)
             state.set("second")
@@ -29,7 +29,7 @@ internal class StateTest {
     @Test
     fun `subscribe new values`() {
         runBlocking {
-            val state = State("first")
+            val state = state("first")
             val testValues = mutableListOf("first", "second", "third")
             val subscriber = state.subscribe(this) { value ->
                 println("value = $value")
@@ -47,7 +47,7 @@ internal class StateTest {
     @Test
     fun `multiple subscribers`() {
         runBlocking {
-            val state = State("first")
+            val state = state("first")
            repeat(5) {
                val testValues = mutableListOf("first", "second", "third")
                state.subscribe(this) { value ->
@@ -67,7 +67,7 @@ internal class StateTest {
     @Test
     fun `multiple emitters and subscribers`() {
         runBlocking {
-            val state = State(0)
+            val state = state(0)
             val emitterValues = IntRange(1, 10000).toMutableList().shuffled()
             repeat(10) {
                 val testValues = IntRange(0, 10000).toMutableSet()

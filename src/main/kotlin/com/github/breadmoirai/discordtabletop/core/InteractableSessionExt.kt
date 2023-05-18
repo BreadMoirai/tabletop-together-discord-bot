@@ -32,7 +32,7 @@ import kotlin.time.Duration
  * @return [Option]<[T]> that is [Some]<[T]> if the event is found, else [None] if timeout.
  * If an event that matches the criteria provided does not occur, the [Deferred] will never complete.
  */
-suspend inline fun <reified T : GenericComponentInteractionCreateEvent, K : MemberRef> InteractableSession<K>.awaitComponentEvent(
+suspend inline fun <reified T : GenericComponentInteractionCreateEvent> InteractableSession.awaitComponentEvent(
     componentId: String,
     expiration: Duration,
 ): Option<T> {
@@ -53,7 +53,7 @@ suspend inline fun <reified T : GenericComponentInteractionCreateEvent, K : Memb
  * @return [Option]<[T]> that is [Some]<[T]> if the event is found, else [None] if timeout.
  * If an event that matches the criteria provided does not occur, the [Deferred] will never complete.
  */
-suspend inline fun <reified T : GenericComponentInteractionCreateEvent, K : MemberRef> InteractableSession<K>.awaitComponentEvent(
+suspend inline fun <reified T : GenericComponentInteractionCreateEvent> InteractableSession.awaitComponentEvent(
     componentId: String,
     userId: Long,
     expiration: Duration,
@@ -87,7 +87,7 @@ suspend inline fun <reified T : GenericComponentInteractionCreateEvent, K : Memb
  * @return [Deferred]<[Option]<[T]>> which contains [Some]<[T]> if an event was successfully received,
  * otherwise [None] if [expiration] was hit
  */
-suspend inline fun <reified T : GenericEvent, K : MemberRef> InteractableSession<K>.awaitEvent(
+suspend inline fun <reified T : GenericEvent> InteractableSession.awaitEvent(
     expiration: Duration,
     crossinline predicate: suspend (T) -> Boolean
 ): Option<T> {
@@ -134,7 +134,7 @@ suspend inline fun <reified T : GenericEvent, K : MemberRef> InteractableSession
  * @return [Deferred]<[Option]<[ButtonInteractionEvent]>> that contains [Some]<[ButtonInteractionEvent]> if the event is found, else [None] if timeout.
  * If an event that matches the criteria provided does not occur, the [Deferred] will never complete.
  */
-suspend fun <K : MemberRef> InteractableSession<K>.awaitButtonPress(
+suspend fun InteractableSession.awaitButtonPress(
     componentId: String,
     userId: Long,
     expiration: Duration,
@@ -170,7 +170,7 @@ suspend fun <K : MemberRef> InteractableSession<K>.awaitButtonPress(
  * @return [Deferred]<[Option]<[ButtonInteractionEvent]>> that contains [Some]<[ButtonInteractionEvent]> if the event is found, else [None] if timeout.
  * If an event that matches the criteria provided does not occur, the [Deferred] will never complete.
  */
-suspend fun <K : MemberRef> InteractableSession<K>.awaitButtonPress(
+suspend fun InteractableSession.awaitButtonPress(
     componentIds: List<String>,
     userId: Long,
     expiration: Duration,
@@ -204,7 +204,7 @@ suspend fun <K : MemberRef> InteractableSession<K>.awaitButtonPress(
  * @param onFailure if the userId does not match, this Consumer is called
  * @return [Option]<[StringSelectInteractionEvent]> that is [Some]<[StringSelectInteractionEvent]> if the event is found, else [None] if timeout.
  */
-suspend fun <K : MemberRef> InteractableSession<K>.awaitStringSelect(
+suspend fun InteractableSession.awaitStringSelect(
     componentId: String,
     userId: Long,
     expiration: Duration,
@@ -227,7 +227,7 @@ suspend fun <K : MemberRef> InteractableSession<K>.awaitStringSelect(
  * @param expiration if the [expiration] is non-null and expires, the return value [Deferred] is completed with [None]
  * @return [Option]<[StringSelectInteractionEvent]> that is [Some]<[StringSelectInteractionEvent]> if the event is found, else [None] if timeout.
  */
-suspend fun <K : MemberRef> InteractableSession<K>.awaitStringSelect(
+suspend fun InteractableSession.awaitStringSelect(
     componentId: String,
     expiration: Duration,
 ): Option<StringSelectInteractionEvent> {

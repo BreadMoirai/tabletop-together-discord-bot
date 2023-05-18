@@ -18,12 +18,12 @@ class Minion : OneNightWerewolfRole() {
     ): List<NightAction> {
         val wolves = session.players.filter { it.startingRole.isWerewolf }
         val players = listOf(player, *wolves.toTypedArray())
-        val interactions = session.requestInteraction(players, timeout, false)
+        val interactions = session.requestInteraction(players.map(ONWPlayer::userId), timeout, false)
         val action = RevealAction(wolves, Werewolf(0), listOf(player), player.startingRole)
         interactions.forEach { (p, option) ->
             option.await().tap { interaction ->
                 interaction.hook
-                    .sendMessage(action.textFor(p))
+                    .sendMessage(action.textFor(players.find { it.userId == p }!!))
                     .setEphemeral(true)
                     .queue()
             }

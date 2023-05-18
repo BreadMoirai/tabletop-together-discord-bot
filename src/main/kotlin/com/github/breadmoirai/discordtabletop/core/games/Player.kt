@@ -36,8 +36,8 @@ open class Player(
         return jda.retrieveUserById(userId).await()
     }
 
-    override suspend fun member(): Member {
-        return guild.retrieveMemberById(userId).await()
+    override fun member(): Member {
+        return guild.retrieveMemberById(userId).complete()
     }
 
 //    val durationSinceLastInteraction: Duration
@@ -46,23 +46,23 @@ open class Player(
 //            return java.time.Duration.between(hook.interaction.timeCreated, Instant.now()).toKotlinDuration()
 //        }
 
-    open suspend fun displayName(): String {
+    open fun displayName(): String {
         return runBlocking {
             "${emoji.formatted} ${member().effectiveName}"
         }
     }
 
-    open suspend fun displayMention(): String {
+    open fun displayMention(): String {
         return runBlocking {
             "${emoji.formatted} ${member().asMention}"
         }
     }
 
-    open suspend fun asOption(): SelectOption {
+    open fun asOption(): SelectOption {
         return SelectOption.of(member().effectiveName, userId.toString())
     }
 
-    open suspend fun matchesOption(option: SelectOption): Boolean {
+    open fun matchesOption(option: SelectOption): Boolean {
         return option.value.toLongOrNull() == userId
     }
 

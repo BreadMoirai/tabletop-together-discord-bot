@@ -22,7 +22,7 @@ class StateImpl<T : Any>(initialValue: T) : State<T> {
         _state.emit(newValue)
     }
 
-    override suspend fun subscribe(scope: CoroutineScope, onChange: Cancellable.(T) -> Unit): Cancellable {
+    override suspend fun subscribe(scope: CoroutineScope, onChange: suspend Cancellable.(T) -> Unit): Cancellable {
         return CancellableJob { self ->
             _state.collect { value ->
                 self.onChange(value)
